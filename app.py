@@ -22,14 +22,24 @@ def index():
 
     # Group by country and sum the cases
     country_data = df.groupby('country')['cases'].sum().reset_index()
+    
+    # Sort the data by cases in descending order and get the top 10 countries
+    top_10_countries = country_data.sort_values('cases', ascending=False).head(10)
 
-    # Create a choropleth map
-    fig = px.choropleth(country_data, 
-                        locations="country", 
-                        locationmode="country names",
-                        color="cases",
-                        hover_name="country",
-                        color_continuous_scale="Viridis")
+    # Create a pie chart
+    fig = px.pie(top_10_countries, 
+                 values='cases', 
+                 names='country',
+                 title='Top 10 Countries by Mpox Cases',
+                 hover_data=['cases'],
+                 labels={'cases':'Number of Cases'})
+
+    # Adjust the layout for better readability
+    fig.update_traces(textposition='inside', textinfo='percent+label')
+    fig.update_layout(
+        legend_title_text='Countries',
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+    )
 
     # Convert the plot to HTML
     plot_html = pio.to_html(fig, full_html=False)
