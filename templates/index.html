@@ -6,9 +6,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mpox Distribution</title>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .chart-container { width: 100%; height: 500px; }
+    </style>
 </head>
 <body>
-    <h1>Mpox Distribution Across Countries</h1>
-    {{ plot | safe }}
+    <h1>Mpox Distribution</h1>
+    <div id="pie-chart" class="chart-container">
+        {{ plot | safe }}
+    </div>
+    <div id="line-chart" class="chart-container" style="display: none;"></div>
+
+    <script>
+        var pieChart = document.getElementById('pie-chart').getElementsByClassName('plotly-graph-div')[0];
+        
+        pieChart.on('plotly_click', function(data) {
+            var country = data.points[0].label;
+            $.get('/get_line_chart/' + country, function(response) {
+                var lineChartDiv = document.getElementById('line-chart');
+                lineChartDiv.style.display = 'block';
+                Plotly.newPlot('line-chart', JSON.parse(response.chart).data, JSON.parse(response.chart).layout);
+            });
+        });
+    </script>
 </body>
 </html>
