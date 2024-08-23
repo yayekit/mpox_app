@@ -7,11 +7,13 @@
 #       └── index.html
 
 import pandas as pd
+import numpy as np  
 from flask import Flask, render_template, jsonify
 import plotly.express as px
 import plotly.io as pio
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
+from scipy import stats
 
 app = Flask(__name__)
 
@@ -24,6 +26,20 @@ def load_data():
     df = pd.read_csv(url)
     df['date'] = pd.to_datetime(df['date'])
     print("Columns in the DataFrame:", df.columns.tolist())
+
+def add_trendline(fig, x, y, name, color):
+    # Calculate trendline
+    z = np.polyfit(range(len(x)), y, 1)
+    p = np.poly1d(z)
+    
+    # Add trendline to figure
+    fig.add_trace(go.Scatter(
+        x=x,
+        y=p(range(len(x))),
+        mode='lines',
+        name=f'{name} Trendline',
+        line=dict(color=color, dash='dash')
+    ))
 
 @app.route('/')
 def index():
@@ -69,6 +85,10 @@ def get_line_chart(country):
         go.Scatter(x=country_data['date'], y=country_data['new_deaths'], name="New Deaths"),
         secondary_y=True,
     )
+
+    # Add trendlines
+    add_trendline(fig, country_data['date'], country_data['new_cases'], "New Cases", "blue")
+    add_trendline(fig, country_data['date'], country_data['new_deaths'], "New Deaths", "red")
 
     fig.update_layout(
         title_text=f"New Cases and Deaths Over Time in {country}",
