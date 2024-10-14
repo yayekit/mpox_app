@@ -1,4 +1,4 @@
-# Structure just to remember:
+# structure to remember:
 # /mpox_app
 #   ├── Dockerfile
 #   ├── requirements.txt
