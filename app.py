@@ -34,11 +34,11 @@ def add_trendline(fig, x, y, name, color):
     
     # Add trendline to figure
     fig.add_trace(go.Scatter(
-        x=x,
-        y=p(range(len(x))),
-        mode='lines',
-        name=f'{name} Trendline',
-        line=dict(color=color, dash='dash')
+        x = x,
+        y = p(range(len(x))),
+        mode = 'lines',
+        name = f'{name} Trendline',
+        line = dict(color = color, dash = 'dash')
     ))
 
 @app.route('/')
@@ -52,38 +52,38 @@ def index():
         return "Error: Unable to find required columns."
     
     country_data = df.groupby(country_column)[case_column].sum().reset_index()
-    top_10_countries = country_data.sort_values(case_column, ascending=False).head(10)
+    top_10_countries = country_data.sort_values(case_column, ascending = False).head(10)
 
     fig = px.pie(top_10_countries, 
-                 values=case_column, 
-                 names=country_column,
-                 title='Top 10 Countries by Mpox Cases',
-                 hover_data=[case_column],
-                 labels={case_column:'Number of Cases'})
+                 values = case_column, 
+                 names = country_column,
+                 title = 'Top 10 Countries by Mpox Cases',
+                 hover_data = [case_column],
+                 labels = {case_column:'Number of Cases'})
 
-    fig.update_traces(textposition='inside', textinfo='percent+label')
+    fig.update_traces(textposition = 'inside', textinfo = 'percent+label')
     fig.update_layout(
-        legend_title_text='Countries',
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+        legend_title_text = 'Countries',
+        legend = dict(orientation = "h", yanchor = "bottom", y = 1.02, xanchor = "right", x = 1)
     )
 
-    plot_html = pio.to_html(fig, full_html=False)
-    return render_template('index.html', plot=plot_html)
+    plot_html = pio.to_html(fig, full_html = False)
+    return render_template('index.html', plot = plot_html)
 
 @app.route('/get_line_chart/<country>')
 def get_line_chart(country):
-    country_data = df[df['location'] == country].sort_values('date')
+    country_data = df[df['location'] ==  country].sort_values('date')
     
-    fig = make_subplots(specs=[[{"secondary_y": True}]])
+    fig = make_subplots(specs = [[{"secondary_y": True}]])
     
     fig.add_trace(
-        go.Scatter(x=country_data['date'], y=country_data['new_cases'], name="New Cases"),
-        secondary_y=False,
+        go.Scatter(x = country_data['date'], y = country_data['new_cases'], name = "New Cases"),
+        secondary_y = False,
     )
 
     fig.add_trace(
-        go.Scatter(x=country_data['date'], y=country_data['new_deaths'], name="New Deaths"),
-        secondary_y=True,
+        go.Scatter(x = country_data['date'], y = country_data['new_deaths'], name = "New Deaths"),
+        secondary_y = True,
     )
 
     # Add trendlines
@@ -91,14 +91,14 @@ def get_line_chart(country):
     add_trendline(fig, country_data['date'], country_data['new_deaths'], "New Deaths", "red")
 
     fig.update_layout(
-        title_text=f"New Cases and Deaths Over Time in {country}",
-        xaxis_title="Date",
+        title_text = f"New Cases and Deaths Over Time in {country}",
+        xaxis_title = "Date",
     )
 
-    fig.update_yaxes(title_text="New Cases", secondary_y=False)
-    fig.update_yaxes(title_text="New Deaths", secondary_y=True)
+    fig.update_yaxes(title_text = "New Cases", secondary_y = False)
+    fig.update_yaxes(title_text = "New Deaths", secondary_y = True)
 
     return jsonify({"chart": pio.to_json(fig)})
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+if __name__ ==  '__main__':
+    app.run(host = '0.0.0.0', port = 5000, debug = True)
